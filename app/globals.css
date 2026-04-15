@@ -1,0 +1,111 @@
+@import url("https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800;900&family=Barlow:wght@300;400;500;600&family=Share+Tech+Mono&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --team-primary: #1a0000;
+  --team-secondary: #e8002d;
+  --team-accent: #ffd700;
+  --team-text: #ffffff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--team-primary);
+  color: var(--team-text);
+  font-family: "Barlow", sans-serif;
+  min-height: 100vh;
+  transition: background-color 0.5s ease, color 0.3s ease;
+}
+
+.font-display {
+  font-family: "Barlow Condensed", sans-serif;
+}
+
+.font-mono-f1 {
+  font-family: "Share Tech Mono", monospace;
+}
+
+/* Racing stripe decoration */
+.racing-stripe {
+  background: repeating-linear-gradient(
+    90deg,
+    var(--team-secondary) 0px,
+    var(--team-secondary) 4px,
+    transparent 4px,
+    transparent 16px
+  );
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--team-secondary);
+  border-radius: 3px;
+}
+
+/* Card hover effects */
+.card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+}
+
+/* Glow effect */
+.glow {
+  box-shadow: 0 0 20px rgba(var(--team-secondary-rgb, 232, 0, 45), 0.3);
+}
+
+/* Position badge */
+.pos-badge {
+  font-family: "Barlow Condensed", sans-serif;
+  font-weight: 800;
+  font-style: italic;
+}
+
+/* Animated underline */
+.nav-link {
+  position: relative;
+}
+.nav-link::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--team-secondary);
+  transition: width 0.3s ease;
+}
+.nav-link.active::after,
+.nav-link:hover::after {
+  width: 100%;
+}
+
+/* Loading shimmer */
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.03) 25%,
+    rgba(255,255,255,0.08) 50%,
+    rgba(255,255,255,0.03) 75%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}
