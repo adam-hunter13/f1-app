@@ -60,13 +60,12 @@ export function Flag({ nationality }: { nationality: string }) {
 export function Card({
   children,
   className = "",
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
       className={`rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm ${className}`}
+      {...props}
     >
       {children}
     </div>
