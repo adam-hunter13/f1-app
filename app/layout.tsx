@@ -4,7 +4,7 @@ import { TeamProvider } from "@/lib/TeamContext";
 import Navbar from "@/components/Navbar";
 
 export const metadata: Metadata = {
-  title: "F1 Pit Wall",
+  title: "F1 Box Box",
   description: "Your Formula 1 dashboard — live standings, races, and results",
 };
 

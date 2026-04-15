@@ -123,7 +123,7 @@ export const TEAMS: Team[] = [
   },
 ];
 
-export const DEFAULT_TEAM = TEAMS[2]; // Ferrari as default
+export const DEFAULT_TEAM = TEAMS[3]; // McLaren as default
 
 export function getTeamById(id: string): Team {
   return TEAMS.find((t) => t.id === id) || DEFAULT_TEAM;

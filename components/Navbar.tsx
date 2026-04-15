@@ -13,6 +13,7 @@ export default function Navbar() {
 
   const links = [
     { href: "/", label: "Dashboard" },
+    { href: "/drivers", label: "Drivers" },
     { href: "/races", label: "Races" },
     { href: "/results", label: "Results" },
   ];
@@ -47,10 +48,10 @@ export default function Navbar() {
               key={l.href}
               href={l.href}
               className={`nav-link px-4 py-2 font-display text-sm font-600 tracking-widest uppercase transition-colors ${
-                pathname === l.href ? "active" : ""
+                (l.href === "/" ? pathname === "/" : pathname.startsWith(l.href)) ? "active" : ""
               }`}
               style={{
-                color: pathname === l.href ? team.secondary : "rgba(255,255,255,0.6)",
+                color: (l.href === "/" ? pathname === "/" : pathname.startsWith(l.href)) ? team.secondary : "rgba(255,255,255,0.6)",
               }}
             >
               {l.label}
