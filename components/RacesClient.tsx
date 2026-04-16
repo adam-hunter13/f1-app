@@ -48,7 +48,7 @@ export default function RacesClient({ races }: Props) {
     <div className="animate-fade-in">
       <PageHeader
         title="Race Calendar"
-        subtitle={`2025 Formula 1 Season — ${races.length} Grands Prix`}
+        subtitle={`${new Date().getFullYear()} Formula 1 Season — ${races.length} Grands Prix`}
       />
 
       <div className="max-w-7xl mx-auto px-4 pb-12">
