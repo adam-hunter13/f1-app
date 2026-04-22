@@ -1,7 +1,7 @@
 const BASE_URL = "https://api.jolpi.ca/ergast/f1";
 
 async function fetchF1<T>(path: string): Promise<T> {
-  const url = `${BASE_URL}/${path}.json`; // enforce single slash
+  const url = `${BASE_URL}/${path.replace(/^\//, "")}.json`;
   const res = await fetch(url, {
     next: { revalidate: 3600 },
   });
@@ -22,6 +22,7 @@ export interface DriverStanding {
   wins: string;
   Driver: {
     driverId: string;
+    url: string;
     givenName: string;
     familyName: string;
     nationality: string;
@@ -183,15 +184,27 @@ export async function getDriverProfile(driverId: string) {
 
 // Fetch a driver's season-by-season standings history
 export async function getDriverSeasonStats(driverId: string) {
-  const data = await fetchF1<any>(`/drivers/${driverId}/driverStandings`);
-  const lists = data.StandingsTable?.StandingsLists ?? [];
-  return lists.map((l: any) => ({
-    season: l.season,
-    position: l.DriverStandings?.[0]?.position ?? "-",
-    points: l.DriverStandings?.[0]?.points ?? "0",
-    wins: l.DriverStandings?.[0]?.wins ?? "0",
-    Constructor: l.DriverStandings?.[0]?.Constructors?.[0] ?? { constructorId: "", name: "Unknown" },
-  })) as DriverSeasonStat[];
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 8 }, (_, i) => currentYear - i);
+  const stats: DriverSeasonStat[] = [];
+
+  for (const year of years) {
+    try {
+      const data = await fetchF1<any>(`${year}/drivers/${driverId}/driverStandings`);
+      const list = data.StandingsTable?.StandingsLists?.[0];
+      if (!list) continue;
+      stats.push({
+        season: list.season,
+        position: list.DriverStandings?.[0]?.position ?? "-",
+        points: list.DriverStandings?.[0]?.points ?? "0",
+        wins: list.DriverStandings?.[0]?.wins ?? "0",
+        Constructor: list.DriverStandings?.[0]?.Constructors?.[0] ?? { constructorId: "", name: "Unknown" },
+      });
+    } catch {
+      // skip years where driver didn't race or API failed
+    }
+  }
+  return stats;
 }
 
 // Fetch a driver's race results for a season
