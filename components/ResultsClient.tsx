@@ -22,52 +22,41 @@ type ViewState = "season" | "detail";
 
 export default function ResultsClient() {
   const { team } = useTeam();
-  const [season, setSeason] = useState(new Date().getFullYear().toString());
-  const [tab, setTab] = useState<ResultTab>("race");
+  const [season, setSeason]   = useState(new Date().getFullYear().toString());
+  const [tab,    setTab]      = useState<ResultTab>("race");
 
-  // Race state
-  const [races, setRaces] = useState<Race[]>([]);
-  const [raceDetail, setRaceDetail] = useState<Race | null>(null);
-  const [selectedRound, setSelectedRound] = useState<string | null>(null);
-  const [loadingRaces, setLoadingRaces] = useState(false);
+  const [races,             setRaces]             = useState<Race[]>([]);
+  const [raceDetail,        setRaceDetail]        = useState<Race | null>(null);
+  const [selectedRound,     setSelectedRound]     = useState<string | null>(null);
+  const [loadingRaces,      setLoadingRaces]      = useState(false);
   const [loadingRaceDetail, setLoadingRaceDetail] = useState(false);
 
-  // Qualifying state
-  const [qualifyingRaces, setQualifyingRaces] = useState<QualifyingRace[]>([]);
-  const [qualifyingDetail, setQualifyingDetail] = useState<QualifyingRace | null>(null);
+  const [qualifyingRaces,   setQualifyingRaces]   = useState<QualifyingRace[]>([]);
+  const [qualifyingDetail,  setQualifyingDetail]  = useState<QualifyingRace | null>(null);
   const [selectedQualRound, setSelectedQualRound] = useState<string | null>(null);
-  const [loadingQual, setLoadingQual] = useState(false);
+  const [loadingQual,       setLoadingQual]       = useState(false);
   const [loadingQualDetail, setLoadingQualDetail] = useState(false);
 
   const [view, setView] = useState<ViewState>("season");
 
-  // Load season race winners
   useEffect(() => {
     setLoadingRaces(true);
-    setRaces([]);
-    setRaceDetail(null);
-    setSelectedRound(null);
-    setView("season");
+    setRaces([]); setRaceDetail(null); setSelectedRound(null); setView("season");
     fetch(`https://api.jolpi.ca/ergast/f1/${season}/results/1.json`)
       .then((r) => r.json())
       .then((d) => setRaces(d.MRData?.RaceTable?.Races ?? []))
       .finally(() => setLoadingRaces(false));
   }, [season]);
 
-  // Load season qualifying summaries
   useEffect(() => {
     setLoadingQual(true);
-    setQualifyingRaces([]);
-    setQualifyingDetail(null);
-    setSelectedQualRound(null);
-    setView("season");
+    setQualifyingRaces([]); setQualifyingDetail(null); setSelectedQualRound(null); setView("season");
     fetch(`https://api.jolpi.ca/ergast/f1/${season}/qualifying.json?limit=100`)
       .then((r) => r.json())
       .then((d) => {
-        // API returns all qualifying results flat — dedupe by round
         const rawRaces = d.MRData?.RaceTable?.Races ?? [];
-        const seen = new Set<string>();
-        const deduped = rawRaces.filter((r: QualifyingRace) => {
+        const seen     = new Set<string>();
+        const deduped  = rawRaces.filter((r: QualifyingRace) => {
           if (seen.has(r.round)) return false;
           seen.add(r.round);
           return true;
@@ -77,69 +66,54 @@ export default function ResultsClient() {
       .finally(() => setLoadingQual(false));
   }, [season]);
 
-  // Load individual race detail
   useEffect(() => {
     if (!selectedRound) return;
-    setLoadingRaceDetail(true);
-    setRaceDetail(null);
+    setLoadingRaceDetail(true); setRaceDetail(null);
     fetch(`https://api.jolpi.ca/ergast/f1/${season}/${selectedRound}/results.json`)
       .then((r) => r.json())
-      .then((d) => {
-        setRaceDetail(d.MRData?.RaceTable?.Races?.[0] ?? null);
-        setView("detail");
-      })
+      .then((d) => { setRaceDetail(d.MRData?.RaceTable?.Races?.[0] ?? null); setView("detail"); })
       .finally(() => setLoadingRaceDetail(false));
   }, [selectedRound, season]);
 
-  // Load individual qualifying detail
   useEffect(() => {
     if (!selectedQualRound) return;
-    setLoadingQualDetail(true);
-    setQualifyingDetail(null);
+    setLoadingQualDetail(true); setQualifyingDetail(null);
     fetch(`https://api.jolpi.ca/ergast/f1/${season}/${selectedQualRound}/qualifying.json`)
       .then((r) => r.json())
-      .then((d) => {
-        setQualifyingDetail(d.MRData?.RaceTable?.Races?.[0] ?? null);
-        setView("detail");
-      })
+      .then((d) => { setQualifyingDetail(d.MRData?.RaceTable?.Races?.[0] ?? null); setView("detail"); })
       .finally(() => setLoadingQualDetail(false));
   }, [selectedQualRound, season]);
 
   const handleBack = () => {
-    setView("season");
-    setSelectedRound(null);
-    setRaceDetail(null);
-    setSelectedQualRound(null);
-    setQualifyingDetail(null);
+    setView("season"); setSelectedRound(null); setRaceDetail(null);
+    setSelectedQualRound(null); setQualifyingDetail(null);
   };
 
   const switchTab = (t: ResultTab) => {
-    setTab(t);
-    setView("season");
-    setSelectedRound(null);
-    setSelectedQualRound(null);
-    setRaceDetail(null);
-    setQualifyingDetail(null);
+    setTab(t); setView("season"); setSelectedRound(null);
+    setSelectedQualRound(null); setRaceDetail(null); setQualifyingDetail(null);
   };
 
   return (
     <div className="animate-fade-in">
       <PageHeader title="Results" subtitle="Race by race — every winner, every point" />
 
-      <div className="max-w-7xl mx-auto px-4 pb-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-14">
+
         {/* Season selector */}
-        <div className="flex flex-wrap items-center gap-3 mb-6">
-          <span className="font-mono-f1 text-xs tracking-widest uppercase text-white/40">Season</span>
-          <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2.5 mb-7">
+          <span className="font-mono-f1 text-[10px] tracking-[0.22em] uppercase text-white/30">Season</span>
+          <div className="flex flex-wrap gap-1.5">
             {SEASONS.map((s) => (
               <button
                 key={s}
                 onClick={() => setSeason(s)}
-                className="px-4 py-1.5 rounded font-display font-700 text-sm tracking-widest uppercase transition-all"
+                className="px-3.5 py-1.5 rounded-lg font-display font-700 text-sm tracking-[0.08em] uppercase transition-all"
                 style={{
                   backgroundColor: season === s ? team.secondary : "rgba(255,255,255,0.05)",
-                  color: season === s ? team.primary : "rgba(255,255,255,0.5)",
-                  border: `1px solid ${season === s ? team.secondary : "transparent"}`,
+                  color:           season === s ? team.primary   : "rgba(255,255,255,0.45)",
+                  border:         `1px solid ${season === s ? team.secondary : "transparent"}`,
+                  boxShadow:       season === s ? `0 0 14px ${team.secondary}30` : "none",
                 }}
               >
                 {s}
@@ -148,19 +122,19 @@ export default function ResultsClient() {
           </div>
         </div>
 
-        {/* Race / Qualifying tabs */}
-        <div className="flex items-center gap-1 mb-8 border-b border-white/10">
+        {/* Tabs */}
+        <div className="flex items-center gap-1 mb-8" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
           {(["race", "qualifying"] as ResultTab[]).map((t) => (
             <button
               key={t}
               onClick={() => switchTab(t)}
-              className="px-5 py-3 font-display text-sm font-700 tracking-widest uppercase transition-all relative"
-              style={{ color: tab === t ? team.secondary : "rgba(255,255,255,0.4)" }}
+              className="px-5 py-3 font-display text-sm font-700 tracking-[0.1em] uppercase transition-all relative"
+              style={{ color: tab === t ? team.secondary : "rgba(255,255,255,0.35)" }}
             >
               {t === "race" ? "Race" : "Qualifying"}
               {tab === t && (
                 <span
-                  className="absolute bottom-0 left-0 right-0 h-0.5"
+                  className="absolute bottom-0 left-0 right-0 h-[2px] rounded-t-sm"
                   style={{ backgroundColor: team.secondary }}
                 />
               )}
@@ -172,71 +146,82 @@ export default function ResultsClient() {
         {view === "detail" && (
           <button
             onClick={handleBack}
-            className="flex items-center gap-2 mb-6 text-sm font-display font-600 uppercase tracking-widest transition-opacity hover:opacity-70"
+            className="flex items-center gap-2 mb-6 text-sm font-display font-700 uppercase tracking-[0.1em] transition-opacity hover:opacity-60"
             style={{ color: team.secondary }}
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            Back to {season} Season
+            {season} Season
           </button>
         )}
 
-        {/* ── RACE TAB — Season Grid ── */}
+        {/* ── RACE — Season Grid ── */}
         {tab === "race" && view === "season" && (
           <>
             <SectionHeading>{season} Race Results</SectionHeading>
             {loadingRaces ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {Array.from({ length: 12 }).map((_, i) => (
-                  <div key={i} className="shimmer h-28 rounded-xl" />
+                  <div key={i} className="shimmer h-28 rounded-2xl" />
                 ))}
               </div>
             ) : races.length === 0 ? (
-              <Card className="p-12 text-center">
-                <p className="font-display text-2xl text-white/20 italic uppercase">No Results Yet</p>
-                <p className="text-white/30 text-sm mt-2">This season may not have started yet.</p>
+              <Card className="p-14 text-center">
+                <p className="font-display text-2xl text-white/15 italic uppercase">No Results Yet</p>
+                <p className="text-white/25 text-sm mt-2">This season may not have started yet.</p>
               </Card>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {races.map((race) => {
                   const winner = race.Results?.[0];
-                  const flag = countryFlags[race.Circuit.Location.country] || "🏁";
+                  const flag   = countryFlags[race.Circuit.Location.country] ?? "🏁";
                   return (
                     <button key={race.round} onClick={() => setSelectedRound(race.round)} className="text-left">
-                      <Card className="p-4 card-hover h-full group cursor-pointer"
-                        style={{ borderColor: "rgba(255,255,255,0.08)" }}>
+                      <div
+                        className="card-hover h-full rounded-2xl group cursor-pointer p-5 relative overflow-hidden"
+                        style={{
+                          backgroundColor: "rgba(255,255,255,0.035)",
+                          border: "1px solid rgba(255,255,255,0.07)",
+                        }}
+                        onMouseEnter={(e) => {
+                          (e.currentTarget as HTMLDivElement).style.borderColor = `${team.secondary}35`;
+                        }}
+                        onMouseLeave={(e) => {
+                          (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(255,255,255,0.07)";
+                        }}
+                      >
                         <div className="flex items-start justify-between mb-3">
-                          <span className="font-mono-f1 text-xs tracking-widest uppercase px-2 py-0.5 rounded"
-                            style={{ backgroundColor: `${team.secondary}20`, color: team.secondary }}>
+                          <span
+                            className="font-mono-f1 text-[10px] tracking-[0.2em] uppercase px-2.5 py-1 rounded-md"
+                            style={{ backgroundColor: `${team.secondary}18`, color: team.secondary }}
+                          >
                             Rd {race.round}
                           </span>
-                          <span className="text-lg">{flag}</span>
+                          <span className="text-lg leading-none">{flag}</span>
                         </div>
-                        <p className="font-display text-base font-800 italic uppercase leading-tight mb-1"
-                          style={{ color: team.text }}>
+                        <p className="font-display text-base font-900 italic uppercase leading-tight mb-1 text-white/90">
                           {race.raceName.replace("Grand Prix", "GP")}
                         </p>
-                        <p className="text-white/40 text-xs mb-3">
+                        <p className="text-white/35 text-xs mb-4 font-body">
                           {race.Circuit.Location.locality}, {race.Circuit.Location.country}
                         </p>
                         {winner && (
-                          <div className="flex items-center gap-2 pt-3 border-t border-white/10">
+                          <div className="flex items-center gap-2 pt-3 border-t border-white/[0.07]">
                             <span className="text-sm">🏆</span>
                             <div className="min-w-0">
-                              <p className="font-display text-sm font-700 uppercase truncate">
+                              <p className="font-display text-sm font-800 uppercase truncate">
                                 {winner.Driver.givenName}{" "}
                                 <span style={{ color: team.secondary }}>{winner.Driver.familyName}</span>
                               </p>
-                              <p className="text-white/30 text-xs truncate">{winner.Constructor.name}</p>
+                              <p className="text-white/25 text-xs truncate font-body">{winner.Constructor.name}</p>
                             </div>
                           </div>
                         )}
-                        <div className="mt-2 flex items-center justify-end opacity-0 group-hover:opacity-100 transition-opacity">
-                          <span className="text-xs font-mono-f1 tracking-widest uppercase"
-                            style={{ color: team.secondary }}>View Results →</span>
+                        <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0 duration-200">
+                          <span className="font-mono-f1 text-xs" style={{ color: team.secondary }}>→</span>
                         </div>
-                      </Card>
+                      </div>
                     </button>
                   );
                 })}
@@ -245,11 +230,11 @@ export default function ResultsClient() {
           </>
         )}
 
-        {/* ── RACE TAB — Detail ── */}
+        {/* ── RACE — Detail ── */}
         {tab === "race" && view === "detail" && (
           <>
             {loadingRaceDetail ? (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {Array.from({ length: 10 }).map((_, i) => (
                   <div key={i} className="shimmer h-16 rounded-xl" />
                 ))}
@@ -258,38 +243,47 @@ export default function ResultsClient() {
               <>
                 <RaceDetailHeader race={raceDetail} season={season} team={team} />
                 <SectionHeading>Race Classification</SectionHeading>
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   {(raceDetail.Results ?? []).map((result, i) => {
                     const isFastestLap = result.FastestLap?.rank === "1";
                     return (
-                      <Card key={result.position}
-                        className="px-4 py-3 card-hover flex items-center gap-4"
-                        style={i === 0 ? { borderColor: `${team.secondary}50` } : undefined}>
+                      <div
+                        key={result.position}
+                        className="row-hover flex items-center gap-3.5 px-4 py-3 rounded-xl"
+                        style={{
+                          backgroundColor: i === 0 ? `${team.secondary}0e` : "rgba(255,255,255,0.025)",
+                          border: `1px solid ${i === 0 ? `${team.secondary}25` : "rgba(255,255,255,0.05)"}`,
+                        }}
+                      >
                         <PosBadge pos={parseInt(result.position)} />
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className="font-mono-f1 text-xs text-white/30 w-8">{result.Driver.code}</span>
-                            <p className="font-display text-base font-700 uppercase truncate">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-mono-f1 text-[10px] text-white/25 w-7">{result.Driver.code}</span>
+                            <p className="font-display text-sm font-800 uppercase">
                               {result.Driver.givenName}{" "}
-                              <span style={{ color: i < 3 ? team.secondary : "inherit" }}>
+                              <span style={{ color: i < 3 ? team.secondary : "rgba(255,255,255,0.88)" }}>
                                 {result.Driver.familyName}
                               </span>
                             </p>
                             {isFastestLap && (
-                              <span className="text-xs px-1.5 py-0.5 rounded font-mono-f1 flex-shrink-0"
-                                style={{ backgroundColor: "#9B59B620", color: "#9B59B6" }}>⚡ FL</span>
+                              <span
+                                className="sector-badge"
+                                style={{ backgroundColor: "#9B59B618", color: "#A78BFA", border: "1px solid #9B59B630" }}
+                              >
+                                ⚡ FL
+                              </span>
                             )}
                           </div>
-                          <p className="text-white/40 text-xs truncate">{result.Constructor.name}</p>
+                          <p className="text-white/30 text-xs mt-0.5 font-body">{result.Constructor.name}</p>
                         </div>
                         <div className="text-right flex-shrink-0 hidden sm:block">
                           {result.Time ? (
-                            <p className="font-mono-f1 text-sm text-white/60">{result.Time.time}</p>
+                            <p className="font-mono-f1 text-sm text-white/50">{result.Time.time}</p>
                           ) : (
-                            <p className="font-mono-f1 text-xs text-white/30">{result.status}</p>
+                            <p className="font-mono-f1 text-xs text-white/25">{result.status}</p>
                           )}
                           {isFastestLap && result.FastestLap?.Time && (
-                            <p className="font-mono-f1 text-xs mt-0.5" style={{ color: "#9B59B6" }}>
+                            <p className="font-mono-f1 text-xs mt-0.5 text-purple-400">
                               {result.FastestLap.Time.time}
                             </p>
                           )}
@@ -297,79 +291,90 @@ export default function ResultsClient() {
                         <div className="flex-shrink-0">
                           <PointsChip points={result.points} />
                         </div>
-                      </Card>
+                      </div>
                     );
                   })}
                 </div>
-                <div className="mt-4 text-xs text-white/30 font-mono-f1">
-                  ⚡ <span style={{ color: "#9B59B6" }}>FL</span> = Fastest Lap bonus point
-                </div>
+                <p className="mt-4 text-[10px] text-white/20 font-mono-f1">
+                  ⚡ <span className="text-purple-400/70">FL</span> = Fastest Lap bonus point
+                </p>
               </>
             ) : (
               <Card className="p-12 text-center">
-                <p className="font-display text-xl text-white/20 italic uppercase">Race not found</p>
+                <p className="font-display text-xl text-white/15 italic uppercase">Race not found</p>
               </Card>
             )}
           </>
         )}
 
-        {/* ── QUALIFYING TAB — Season Grid ── */}
+        {/* ── QUALIFYING — Season Grid ── */}
         {tab === "qualifying" && view === "season" && (
           <>
             <SectionHeading>{season} Qualifying Results</SectionHeading>
             {loadingQual ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {Array.from({ length: 12 }).map((_, i) => (
-                  <div key={i} className="shimmer h-28 rounded-xl" />
+                  <div key={i} className="shimmer h-28 rounded-2xl" />
                 ))}
               </div>
             ) : qualifyingRaces.length === 0 ? (
-              <Card className="p-12 text-center">
-                <p className="font-display text-2xl text-white/20 italic uppercase">No Qualifying Data</p>
-                <p className="text-white/30 text-sm mt-2">This season may not have started yet.</p>
+              <Card className="p-14 text-center">
+                <p className="font-display text-2xl text-white/15 italic uppercase">No Qualifying Data</p>
+                <p className="text-white/25 text-sm mt-2">This season may not have started yet.</p>
               </Card>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {qualifyingRaces.map((race) => {
                   const pole = race.QualifyingResults?.[0];
-                  const flag = countryFlags[race.Circuit.Location.country] || "🏁";
+                  const flag = countryFlags[race.Circuit.Location.country] ?? "🏁";
                   return (
                     <button key={race.round} onClick={() => setSelectedQualRound(race.round)} className="text-left">
-                      <Card className="p-4 card-hover h-full group cursor-pointer"
-                        style={{ borderColor: "rgba(255,255,255,0.08)" }}>
+                      <div
+                        className="card-hover h-full rounded-2xl group cursor-pointer p-5 relative overflow-hidden"
+                        style={{
+                          backgroundColor: "rgba(255,255,255,0.035)",
+                          border: "1px solid rgba(255,255,255,0.07)",
+                        }}
+                        onMouseEnter={(e) => {
+                          (e.currentTarget as HTMLDivElement).style.borderColor = `${team.secondary}35`;
+                        }}
+                        onMouseLeave={(e) => {
+                          (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(255,255,255,0.07)";
+                        }}
+                      >
                         <div className="flex items-start justify-between mb-3">
-                          <span className="font-mono-f1 text-xs tracking-widest uppercase px-2 py-0.5 rounded"
-                            style={{ backgroundColor: `${team.secondary}20`, color: team.secondary }}>
+                          <span
+                            className="font-mono-f1 text-[10px] tracking-[0.2em] uppercase px-2.5 py-1 rounded-md"
+                            style={{ backgroundColor: `${team.secondary}18`, color: team.secondary }}
+                          >
                             Rd {race.round}
                           </span>
-                          <span className="text-lg">{flag}</span>
+                          <span className="text-lg leading-none">{flag}</span>
                         </div>
-                        <p className="font-display text-base font-800 italic uppercase leading-tight mb-1"
-                          style={{ color: team.text }}>
+                        <p className="font-display text-base font-900 italic uppercase leading-tight mb-1 text-white/90">
                           {race.raceName.replace("Grand Prix", "GP")}
                         </p>
-                        <p className="text-white/40 text-xs mb-3">
+                        <p className="text-white/35 text-xs mb-4 font-body">
                           {race.Circuit.Location.locality}, {race.Circuit.Location.country}
                         </p>
                         {pole && (
-                          <div className="flex items-center gap-2 pt-3 border-t border-white/10">
+                          <div className="flex items-center gap-2 pt-3 border-t border-white/[0.07]">
                             <span className="text-sm">🏎</span>
                             <div className="min-w-0">
-                              <p className="font-display text-sm font-700 uppercase truncate">
+                              <p className="font-display text-sm font-800 uppercase truncate">
                                 {pole.Driver.givenName}{" "}
                                 <span style={{ color: team.secondary }}>{pole.Driver.familyName}</span>
                               </p>
-                              <p className="text-white/30 text-xs font-mono-f1">
-                                {pole.Q3 || pole.Q2 || pole.Q1}
+                              <p className="text-white/25 text-xs font-mono-f1">
+                                {pole.Q3 ?? pole.Q2 ?? pole.Q1}
                               </p>
                             </div>
                           </div>
                         )}
-                        <div className="mt-2 flex items-center justify-end opacity-0 group-hover:opacity-100 transition-opacity">
-                          <span className="text-xs font-mono-f1 tracking-widest uppercase"
-                            style={{ color: team.secondary }}>View Results →</span>
+                        <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0 duration-200">
+                          <span className="font-mono-f1 text-xs" style={{ color: team.secondary }}>→</span>
                         </div>
-                      </Card>
+                      </div>
                     </button>
                   );
                 })}
@@ -378,31 +383,35 @@ export default function ResultsClient() {
           </>
         )}
 
-        {/* ── QUALIFYING TAB — Detail ── */}
+        {/* ── QUALIFYING — Detail ── */}
         {tab === "qualifying" && view === "detail" && (
           <>
             {loadingQualDetail ? (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {Array.from({ length: 10 }).map((_, i) => (
                   <div key={i} className="shimmer h-16 rounded-xl" />
                 ))}
               </div>
             ) : qualifyingDetail ? (
               <>
-                <Card className="p-6 mb-6 relative overflow-hidden"
-                  style={{ borderColor: `${team.secondary}40` }}>
-                  <div className="absolute inset-0 opacity-5"
-                    style={{ backgroundImage: `radial-gradient(circle at 70% 50%, ${team.secondary}, transparent 60%)` }} />
+                <Card className="p-6 mb-6 relative overflow-hidden" style={{ borderColor: `${team.secondary}30` }}>
+                  <div
+                    className="absolute inset-0 opacity-[0.035]"
+                    style={{ backgroundImage: `radial-gradient(ellipse at 70% 50%, ${team.secondary}, transparent 65%)` }}
+                  />
+                  <div className="absolute top-0 inset-x-0 h-[2px]" style={{ backgroundColor: team.secondary }} />
                   <div className="relative">
-                    <p className="font-mono-f1 text-xs tracking-widest uppercase mb-1"
-                      style={{ color: team.secondary }}>
+                    <p
+                      className="font-mono-f1 text-[10px] tracking-[0.2em] uppercase mb-1.5"
+                      style={{ color: team.secondary }}
+                    >
                       Round {qualifyingDetail.round} · {season} · Qualifying
                     </p>
-                    <h2 className="font-display text-4xl font-900 italic uppercase">
+                    <h2 className="font-display text-3xl md:text-4xl font-900 italic uppercase text-white">
                       {qualifyingDetail.raceName}
                     </h2>
-                    <p className="text-white/50 mt-1">
-                      {countryFlags[qualifyingDetail.Circuit.Location.country] || "🏁"}{" "}
+                    <p className="text-white/40 mt-1.5 font-body text-sm">
+                      {countryFlags[qualifyingDetail.Circuit.Location.country] ?? "🏁"}{" "}
                       {qualifyingDetail.Circuit.circuitName} · {qualifyingDetail.Circuit.Location.locality},{" "}
                       {qualifyingDetail.Circuit.Location.country}
                     </p>
@@ -412,8 +421,10 @@ export default function ResultsClient() {
                 <SectionHeading>Qualifying Classification</SectionHeading>
 
                 {/* Column headers */}
-                <div className="hidden sm:grid px-4 pb-2 text-xs font-mono-f1 tracking-widest uppercase text-white/25"
-                  style={{ gridTemplateColumns: "3rem 1fr 6rem 6rem 6rem 3rem" }}>
+                <div
+                  className="hidden sm:grid px-4 pb-2 font-mono-f1 text-[9px] tracking-[0.2em] uppercase text-white/20"
+                  style={{ gridTemplateColumns: "2.5rem 1fr 5.5rem 5.5rem 5.5rem 2.5rem" }}
+                >
                   <span>Pos</span>
                   <span>Driver</span>
                   <span className="text-right">Q1</span>
@@ -422,69 +433,76 @@ export default function ResultsClient() {
                   <span className="text-right">#</span>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   {(qualifyingDetail.QualifyingResults ?? []).map((result, i) => (
-                    <Card
+                    <div
                       key={result.position}
-                      className="px-4 py-3 card-hover"
-                      style={i === 0 ? { borderColor: `${team.secondary}50` } : undefined}
+                      className="row-hover flex items-center gap-3.5 px-4 py-3 rounded-xl"
+                      style={{
+                        backgroundColor: i === 0 ? `${team.secondary}0e` : "rgba(255,255,255,0.025)",
+                        border: `1px solid ${i === 0 ? `${team.secondary}25` : "rgba(255,255,255,0.05)"}`,
+                      }}
                     >
-                      <div className="flex items-center gap-4">
-                        <PosBadge pos={parseInt(result.position)} />
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className="font-mono-f1 text-xs text-white/30 w-8">{result.Driver.code}</span>
-                            <p className="font-display text-base font-700 uppercase truncate">
-                              {result.Driver.givenName}{" "}
-                              <span style={{ color: i < 3 ? team.secondary : "inherit" }}>
-                                {result.Driver.familyName}
-                              </span>
-                            </p>
-                          </div>
-                          <p className="text-white/40 text-xs truncate">{result.Constructor.name}</p>
-                        </div>
-
-                        {/* Q times — desktop */}
-                        <div className="hidden sm:flex items-center gap-1 flex-shrink-0">
-                          {[result.Q1, result.Q2, result.Q3].map((time, qi) => (
-                            <div key={qi} className="w-24 text-right">
-                              <p className={`font-mono-f1 text-sm ${
-                                qi === 2 && result.Q3
-                                  ? i === 0 ? "" : "text-white/70"
-                                  : "text-white/25"
-                              }`}
-                              style={qi === 2 && i === 0 && result.Q3 ? { color: team.secondary } : undefined}>
-                                {time || "—"}
-                              </p>
-                            </div>
-                          ))}
-                        </div>
-
-                        {/* Best time — mobile */}
-                        <div className="sm:hidden flex-shrink-0">
-                          <p className="font-mono-f1 text-sm"
-                            style={{ color: i === 0 ? team.secondary : "rgba(255,255,255,0.6)" }}>
-                            {result.Q3 || result.Q2 || result.Q1 || "—"}
+                      <PosBadge pos={parseInt(result.position)} />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono-f1 text-[10px] text-white/25 w-7">{result.Driver.code}</span>
+                          <p className="font-display text-sm font-800 uppercase">
+                            {result.Driver.givenName}{" "}
+                            <span style={{ color: i < 3 ? team.secondary : "rgba(255,255,255,0.88)" }}>
+                              {result.Driver.familyName}
+                            </span>
                           </p>
                         </div>
-
-                        <div className="flex-shrink-0 w-8 text-right">
-                          <span className="font-mono-f1 text-xs text-white/25">#{result.number}</span>
-                        </div>
+                        <p className="text-white/30 text-xs mt-0.5 font-body">{result.Constructor.name}</p>
                       </div>
-                    </Card>
+
+                      {/* Q times desktop */}
+                      <div className="hidden sm:flex items-center gap-1 flex-shrink-0">
+                        {[result.Q1, result.Q2, result.Q3].map((time, qi) => (
+                          <div key={qi} className="w-[5.5rem] text-right">
+                            <p
+                              className="font-mono-f1 text-xs tabular-nums"
+                              style={{
+                                color: qi === 2 && i === 0 && result.Q3
+                                  ? team.secondary
+                                  : qi === 2 && result.Q3
+                                    ? "rgba(255,255,255,0.6)"
+                                    : "rgba(255,255,255,0.22)",
+                              }}
+                            >
+                              {time ?? "—"}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Best time mobile */}
+                      <div className="sm:hidden flex-shrink-0">
+                        <p
+                          className="font-mono-f1 text-sm tabular-nums"
+                          style={{ color: i === 0 ? team.secondary : "rgba(255,255,255,0.55)" }}
+                        >
+                          {result.Q3 ?? result.Q2 ?? result.Q1 ?? "—"}
+                        </p>
+                      </div>
+
+                      <div className="flex-shrink-0 w-8 text-right">
+                        <span className="font-mono-f1 text-[10px] text-white/20">#{result.number}</span>
+                      </div>
+                    </div>
                   ))}
                 </div>
 
-                <div className="mt-4 flex flex-wrap gap-4 text-xs text-white/25 font-mono-f1">
-                  <span>Q1 → eliminates P16–P20</span>
-                  <span>Q2 → eliminates P11–P15</span>
-                  <span style={{ color: `${team.secondary}99` }}>Q3 → pole shootout</span>
+                <div className="mt-5 flex flex-wrap gap-4 font-mono-f1 text-[10px] text-white/20">
+                  <span>Q1 → elim. P16–P20</span>
+                  <span>Q2 → elim. P11–P15</span>
+                  <span style={{ color: `${team.secondary}80` }}>Q3 → pole shootout</span>
                 </div>
               </>
             ) : (
               <Card className="p-12 text-center">
-                <p className="font-display text-xl text-white/20 italic uppercase">Qualifying not found</p>
+                <p className="font-display text-xl text-white/15 italic uppercase">Qualifying not found</p>
               </Card>
             )}
           </>
@@ -505,20 +523,23 @@ function RaceDetailHeader({ race, season, team }: { race: Race; season: string; 
     Brazil: "🇧🇷", "Abu Dhabi": "🇦🇪", UAE: "🇦🇪", Qatar: "🇶🇦",
   };
   return (
-    <Card className="p-6 mb-6 relative overflow-hidden" style={{ borderColor: `${team.secondary}40` }}>
-      <div className="absolute inset-0 opacity-5"
-        style={{ backgroundImage: `radial-gradient(circle at 70% 50%, ${team.secondary}, transparent 60%)` }} />
+    <Card className="p-6 mb-6 relative overflow-hidden" style={{ borderColor: `${team.secondary}30` }}>
+      <div
+        className="absolute inset-0 opacity-[0.035]"
+        style={{ backgroundImage: `radial-gradient(ellipse at 70% 50%, ${team.secondary}, transparent 65%)` }}
+      />
+      <div className="absolute top-0 inset-x-0 h-[2px]" style={{ backgroundColor: team.secondary }} />
       <div className="relative">
-        <p className="font-mono-f1 text-xs tracking-widest uppercase mb-1" style={{ color: team.secondary }}>
+        <p className="font-mono-f1 text-[10px] tracking-[0.2em] uppercase mb-1.5" style={{ color: team.secondary }}>
           Round {race.round} · {season}
         </p>
-        <h2 className="font-display text-4xl font-900 italic uppercase">{race.raceName}</h2>
-        <p className="text-white/50 mt-1">
-          {flags[race.Circuit.Location.country] || "🏁"}{" "}
+        <h2 className="font-display text-3xl md:text-4xl font-900 italic uppercase text-white">{race.raceName}</h2>
+        <p className="text-white/40 mt-1.5 font-body text-sm">
+          {flags[race.Circuit.Location.country] ?? "🏁"}{" "}
           {race.Circuit.circuitName} · {race.Circuit.Location.locality},{" "}
           {race.Circuit.Location.country}
         </p>
-        <p className="text-white/30 text-sm mt-1 font-mono-f1">
+        <p className="text-white/25 text-xs mt-1 font-mono-f1">
           {new Date(race.date).toLocaleDateString("en-US", {
             weekday: "long", year: "numeric", month: "long", day: "numeric",
           })}
