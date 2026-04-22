@@ -62,3 +62,4 @@ export async function fetchDriverPhotoBatch(
     drivers.map((d) => [d.driverId, DRIVER_PHOTOS[d.driverId] ?? null])
   );
 }
+
