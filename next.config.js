@@ -1,5 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  transpilePackages: ['three', '@react-three/fiber', '@react-three/drei'],
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'media.formula1.com',
+        pathname: '/**',
+      },
+    ],
+  },
 };
 module.exports = nextConfig;

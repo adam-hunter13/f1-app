@@ -215,16 +215,11 @@ export default function DashboardClient({ drivers, constructors, driverPhotos }:
           )}
         </div>
 
-        {/* RIGHT: 3D car canvas */}
-        <div className="relative z-20 lg:w-[55%] h-[240px] md:h-[300px] lg:h-auto">
+        {/* RIGHT: car image */}
+        <div className="relative z-20 flex items-center justify-center lg:w-[55%]">
           <F1CarScene
             teamId={team.id}
             secondary={team.secondary}
-          />
-          {/* Glow under car */}
-          <div
-            className="absolute bottom-8 left-1/2 -translate-x-1/2 w-2/3 h-8 blur-2xl rounded-full pointer-events-none"
-            style={{ backgroundColor: `${team.secondary}30` }}
           />
         </div>
       </section>

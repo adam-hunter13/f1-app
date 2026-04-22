@@ -84,9 +84,6 @@ export function Sidebar() {
             F1
           </div>
           <div>
-            <p className="font-display font-800 italic uppercase text-base tracking-wide leading-none text-white/90">
-              Box Box
-            </p>
             <p className="font-mono-f1 text-[9px] tracking-[0.18em] text-white/25 mt-0.5">
               {new Date().getFullYear()} SEASON
             </p>
