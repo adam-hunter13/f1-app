@@ -1,4 +1,4 @@
-# 🏎️ F1 Pit Wall
+# 🏎️ F1 Box Box
 
 A Formula 1 dashboard built with **Next.js 14**, **TypeScript**, and **Tailwind CSS**. Data is sourced from the free [Jolpica F1 API](https://jolpi.ca/) (Ergast successor) — no API key required.
 
